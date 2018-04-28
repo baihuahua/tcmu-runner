@@ -963,7 +963,7 @@ struct tcmulib_cmd *tcmulib_get_next_command(struct tcmu_device *dev)
 	struct tcmu_cmd_entry *ent;
 
 	while ((ent = device_cmd_tail(dev)) != device_cmd_head(dev)) {
-
+	        TCMU_UPDATE_DEV_TAIL(dev, mb, ent);
 		switch (tcmu_hdr_get_op(ent->hdr.len_op)) {
 		case TCMU_OP_PAD:
 			/* do nothing */
@@ -1002,15 +1002,12 @@ struct tcmulib_cmd *tcmulib_get_next_command(struct tcmu_device *dev)
 			cmd->cdb = (uint8_t *) (cmd->iovec + cmd->iov_cnt);
 			memcpy(cmd->cdb, (void *) mb + ent->req.cdb_off, cdb_len);
 
-			TCMU_UPDATE_DEV_TAIL(dev, mb, ent);
 			return cmd;
 		}
 		default:
 			/* We don't even know how to handle this TCMU opcode. */
 			ent->hdr.uflags |= TCMU_UFLAG_UNKNOWN_OP;
 		}
-
-		TCMU_UPDATE_DEV_TAIL(dev, mb, ent);
 	}
 
 	return NULL;
@@ -1032,9 +1029,9 @@ void tcmulib_command_complete(
 
 	/* current command could be PAD in async case */
 	while (ent != (void *) mb + mb->cmdr_off + mb->cmd_head) {
+		TCMU_UPDATE_RB_TAIL(mb, ent);
 		if (tcmu_hdr_get_op(ent->hdr.len_op) == TCMU_OP_CMD)
 			break;
-		TCMU_UPDATE_RB_TAIL(mb, ent);
 		ent = (void *) mb + mb->cmdr_off + mb->cmd_tail;
 	}
 
@@ -1062,7 +1059,6 @@ void tcmulib_command_complete(
 		ent->rsp.scsi_status = result;
 	}
 
-	TCMU_UPDATE_RB_TAIL(mb, ent);
 	free(cmd);
 }
 
