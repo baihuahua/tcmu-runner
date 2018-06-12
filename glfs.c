@@ -530,7 +530,7 @@ static int tcmu_glfs_open(struct tcmu_device *dev, bool reopen)
 			      "device size and backing size disagree:device %lld backing %lld\n",
 			      dev_size, (long long) st.st_size);
 
-		ret = tcmur_dev_update_size(dev, st.st_size);
+		ret = tcmu_dev_update_size(dev, st.st_size);
 		if (ret)
 			goto close;
 	}

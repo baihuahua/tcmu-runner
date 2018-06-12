@@ -53,6 +53,7 @@
 #include "be_byteshift.h"
 #include "libtcmu.h"
 #include "libtcmu_log.h"
+#include "libtcmu_scsi.h"
 #include "scsi_defs.h"
 
 struct fbo_state {

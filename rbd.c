@@ -29,6 +29,7 @@
 #include "libtcmu.h"
 #include "libtcmu_failover.h"
 #include "libtcmu_log.h"
+#include "libtcmu_scsi.h"
 
 #include <rbd/librbd.h>
 #include <rados/librados.h>
@@ -1371,12 +1372,12 @@ static int tcmu_rbd_handle_cmd(struct tcmu_device *dev, struct tcmulib_cmd *cmd)
 #ifdef RBD_WRITE_SAME_SUPPORT
 	case WRITE_SAME:
 	case WRITE_SAME_16:
-		ret = tcmur_handle_writesame(dev, cmd, tcmu_rbd_aio_writesame);
+		ret = tcmu_handle_writesame_helper(dev, cmd, tcmu_rbd_aio_writesame);
 		break;
 #endif
 #ifdef RBD_COMPARE_AND_WRITE_SUPPORT
 	case COMPARE_AND_WRITE:
-		ret = tcmur_handle_caw(dev, cmd, tcmu_rbd_aio_caw);
+		ret = tcmu_handle_caw_helper(dev, cmd, tcmu_rbd_aio_caw);
 		break;
 #endif
 	default:

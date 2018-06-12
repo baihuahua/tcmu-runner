@@ -607,7 +607,7 @@ static void *tcmur_cmdproc_thread(void *arg)
 			 */
 			if (ret != TCMU_STS_ASYNC_HANDLED) {
 				completed = 1;
-				tcmur_command_complete(dev, cmd, ret);
+				tcmu_command_complete(dev, cmd, ret);
 			}
 		}
 
@@ -670,7 +670,7 @@ static int dev_resize(struct tcmu_device *dev, struct tcmulib_cfg_info *cfg)
 
 	ret = tcmu_update_num_lbas(dev, cfg->data.dev_size);
 	if (!ret)
-		tcmur_set_pending_ua(dev, TCMUR_UA_DEV_SIZE_CHANGED);
+		tcmu_set_pending_ua(dev, TCMUR_UA_DEV_SIZE_CHANGED);
 
 	return ret;
 }

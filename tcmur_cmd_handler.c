@@ -56,10 +56,10 @@ int tcmur_cmd_passthrough_handler(struct tcmu_device *dev,
 	 * can finish in the callers context(asynchronous handler) or work
 	 * queue context (synchronous handlers), thus we'd need to check if
 	 * ->handle_cmd handled the passthough command here as well as in
-	 * handle_passthrough_cbk().
+	 * tcmu_handle_passthrough_cbk().
 	 */
 	track_aio_request_start(rdev);
-	ret = handle_passthrough(dev, cmd);
+	ret = tcmu_handle_passthrough(dev, cmd);
 	if (ret != TCMU_STS_ASYNC_HANDLED)
 		track_aio_request_finish(rdev, NULL);
 
@@ -113,38 +113,38 @@ static int tcmur_cmd_handler(struct tcmu_device *dev, struct tcmulib_cmd *cmd)
 	case READ_10:
 	case READ_12:
 	case READ_16:
-		ret = handle_read(dev, cmd);
+		ret = tcmu_handle_read(dev, cmd);
 		break;
 	case WRITE_6:
 	case WRITE_10:
 	case WRITE_12:
 	case WRITE_16:
-		ret = handle_write(dev, cmd);
+		ret = tcmu_handle_write(dev, cmd);
 		break;
 	case UNMAP:
-		ret = handle_unmap(dev, cmd);
+		ret = tcmu_handle_unmap(dev, cmd);
 		break;
 	case SYNCHRONIZE_CACHE:
 	case SYNCHRONIZE_CACHE_16:
 		if (rhandler->flush)
-			ret = handle_flush(dev, cmd);
+			ret = tcmu_handle_flush(dev, cmd);
 		break;
 	case EXTENDED_COPY:
-		ret = handle_xcopy(dev, cmd);
+		ret = tcmu_handle_xcopy(dev, cmd);
 		break;
 	case COMPARE_AND_WRITE:
-		ret = handle_caw(dev, cmd);
+		ret = tcmu_handle_caw(dev, cmd);
 		break;
 	case WRITE_VERIFY:
 	case WRITE_VERIFY_16:
-		ret = handle_write_verify(dev, cmd);
+		ret = tcmu_handle_write_verify(dev, cmd);
 		break;
 	case WRITE_SAME:
 	case WRITE_SAME_16:
-		ret = handle_writesame(dev, cmd);
+		ret = tcmu_handle_writesame(dev, cmd);
 		break;
 	case FORMAT_UNIT:
-		ret = handle_format_unit(dev, cmd);
+		ret = tcmu_handle_format_unit(dev, cmd);
 		break;
 	default:
 		ret = TCMU_STS_NOT_HANDLED;
@@ -166,7 +166,7 @@ static int handle_sync_cmd(struct tcmu_device *dev, struct tcmulib_cmd *cmd)
 
 	switch (cdb[0]) {
 	case INQUIRY:
-		return handle_inquiry(dev, cmd);
+		return tcmu_handle_inquiry(dev, cmd);
 	case TEST_UNIT_READY:
 		return tcmu_emulate_test_unit_ready(cdb, iovec, iov_cnt);
 	case SERVICE_ACTION_IN_16:
@@ -196,15 +196,15 @@ static int handle_sync_cmd(struct tcmu_device *dev, struct tcmulib_cmd *cmd)
 		return tcmu_emulate_mode_select(dev, cdb, iovec, iov_cnt);
 	case RECEIVE_COPY_RESULTS:
 		if ((cdb[1] & 0x1f) == RCR_SA_OPERATING_PARAMETERS)
-			return handle_recv_copy_result(dev, cmd);
+			return tcmu_handle_recv_copy_result(dev, cmd);
 		return TCMU_STS_NOT_HANDLED;
 	case MAINTENANCE_OUT:
 		if (cdb[1] == MO_SET_TARGET_PGS)
-			return handle_stpg(dev, cmd);
+			return tcmu_handle_stpg(dev, cmd);
 		return TCMU_STS_NOT_HANDLED;
 	case MAINTENANCE_IN:
 		if ((cdb[1] & 0x1f) == MI_REPORT_TARGET_PGS)
-			return handle_rtpg(dev, cmd);
+			return tcmu_handle_rtpg(dev, cmd);
 		return TCMU_STS_NOT_HANDLED;
 	default:
 		return TCMU_STS_NOT_HANDLED;
@@ -240,7 +240,7 @@ int tcmur_generic_handle_cmd(struct tcmu_device *dev, struct tcmulib_cmd *cmd)
 	struct tcmulib_device *rdev = tcmu_get_daemon_dev_private(dev);
 	int ret;
 
-	ret = handle_pending_ua(rdev, cmd);
+	ret = tcmu_handle_pending_ua(rdev, cmd);
 	if (ret != TCMU_STS_NOT_HANDLED)
 		return ret;
 

@@ -32,6 +32,7 @@
 #include "libtcmu_aio.h"
 #include "tcmur_cmd_handler.h"
 #include "libtcmu_failover.h"
+#include "libtcmu_scsi.h"
 
 #define TCMU_NL_VERSION 2
 
@@ -1034,7 +1035,7 @@ static int tcmu_sts_to_scsi(int tcmu_sts, uint8_t *sense)
 		break;
 	case TCMU_STS_MISCOMPARE:
 		/* Miscompare during verify operation */
-		__tcmu_set_sense_data(sense, MISCOMPARE, 0x1d00);
+		tcmu_set_sense_data(sense, MISCOMPARE, 0x1d00);
 		break;
 	case TCMU_STS_RD_ERR:
 		/* Read medium error */
@@ -1102,7 +1103,7 @@ static int tcmu_sts_to_scsi(int tcmu_sts, uint8_t *sense)
 		break;
 	case TCMU_STS_FRMT_IN_PROGRESS:
 		/* Format in progress */
-		__tcmu_set_sense_data(sense, NOT_READY, 0x0404);
+		tcmu_set_sense_data(sense, NOT_READY, 0x0404);
 		break;
 	case TCMU_STS_NOT_HANDLED:
 	case TCMU_STS_INVALID_CMD:

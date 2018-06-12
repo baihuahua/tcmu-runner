@@ -31,6 +31,7 @@
 #include "scsi_defs.h"
 #include "libtcmu.h"
 #include "libtcmu_log.h"
+#include "libtcmu_scsi.h"
 
 /*
  * SCSI commands.
