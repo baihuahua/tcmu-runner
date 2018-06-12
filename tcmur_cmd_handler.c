@@ -19,12 +19,12 @@
 #include "darray.h"
 #include "libtcmu.h"
 #include "libtcmu_log.h"
-#include "libtcmu_priv.h"
 #include "libtcmu_common.h"
 #include "libtcmu_aio.h"
 #include "libtcmu_failover.h"
 #include "tcmur_cmd_handler.h"
 #include "libtcmu_alua.h"
+#include "scsi_defs.h"
 #include "libtcmu_scsi.h"
 
 bool tcmulib_backstore_handler_is_passthrough_only(struct tcmulib_backstore_handler *rhandler)
