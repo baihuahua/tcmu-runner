@@ -39,7 +39,7 @@ int tcmur_cmd_passthrough_handler(struct tcmu_device *dev,
 				  struct tcmulib_cmd *cmd)
 {
 	struct tcmulib_backstore_handler *rhandler = tcmu_get_runner_handler(dev);
-	struct tcmur_device *rdev = tcmu_get_daemon_dev_private(dev);
+	struct tcmulib_device *rdev = tcmu_get_daemon_dev_private(dev);
 	int ret;
 
 	if (!rhandler->handle_cmd)
@@ -70,7 +70,7 @@ static int tcmur_cmd_handler(struct tcmu_device *dev, struct tcmulib_cmd *cmd)
 {
 	int ret = TCMU_STS_NOT_HANDLED;
 	struct tcmulib_backstore_handler *rhandler = tcmu_get_runner_handler(dev);
-	struct tcmur_device *rdev = tcmu_get_daemon_dev_private(dev);
+	struct tcmulib_device *rdev = tcmu_get_daemon_dev_private(dev);
 	uint8_t *cdb = cmd->cdb;
 
 	track_aio_request_start(rdev);
@@ -215,7 +215,7 @@ static int handle_try_passthrough(struct tcmu_device *dev,
 				  struct tcmulib_cmd *cmd)
 {
 	struct tcmulib_backstore_handler *rhandler = tcmu_get_runner_handler(dev);
-	struct tcmur_device *rdev = tcmu_get_daemon_dev_private(dev);
+	struct tcmulib_device *rdev = tcmu_get_daemon_dev_private(dev);
 	int ret;
 
 	if (!rhandler->handle_cmd)
@@ -237,7 +237,7 @@ static int handle_try_passthrough(struct tcmu_device *dev,
 
 int tcmur_generic_handle_cmd(struct tcmu_device *dev, struct tcmulib_cmd *cmd)
 {
-	struct tcmur_device *rdev = tcmu_get_daemon_dev_private(dev);
+	struct tcmulib_device *rdev = tcmu_get_daemon_dev_private(dev);
 	int ret;
 
 	ret = handle_pending_ua(rdev, cmd);

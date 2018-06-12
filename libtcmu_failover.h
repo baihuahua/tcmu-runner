@@ -35,41 +35,6 @@ enum {
 	TCMUR_DEV_LOCK_LOCKING,
 };
 
-struct tcmur_device {
-	struct tcmu_device *dev;
-
-	pthread_t cmdproc_thread;
-
-	/* TCMUR_DEV flags */
-	uint32_t flags;
-	uint8_t failover_type;
-
-	pthread_t recovery_thread;
-	struct list_node recovery_entry;
-
-	uint8_t lock_state;
-	pthread_t lock_thread;
-	pthread_cond_t lock_cond;
-
-	/* General lock for lock state, thread, dev state, etc */
-	pthread_mutex_t state_lock;
-	int pending_uas;
-
-	/*
-	 * lock order:
-	 *  work_queue->aio_lock
-	 *    track_queue->track_lock
-	 */
-        struct tcmu_io_queue work_queue;
-        struct tcmu_track_aio track_queue;
-
-	pthread_spinlock_t lock; /* protects concurrent updates to mailbox */
-	pthread_mutex_t caw_lock; /* for atomic CAW operation */
-
-	uint32_t format_progress;
-	pthread_mutex_t format_lock; /* for atomic format operations */
-};
-
 bool tcmu_dev_in_recovery(struct tcmu_device *dev);
 void tcmu_cancel_recovery(struct tcmu_device *dev);
 int tcmu_cancel_lock_thread(struct tcmu_device *dev);

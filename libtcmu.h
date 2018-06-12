@@ -23,6 +23,8 @@ extern "C" {
 
 #include "libtcmu_common.h"
 
+#include "ccan/list/list.h"
+
 enum tcmulib_cfg_type {
 	TCMULIB_CFG_DEV_CFGSTR,
 	TCMULIB_CFG_DEV_SIZE,
@@ -178,6 +180,56 @@ struct tcmulib_backstore_handler {
 	 * latter case opaque will point to a struct dbus_info.
 	 */
 	bool _is_dbus_handler;
+};
+
+struct tcmu_track_aio {
+	unsigned int pending_wakeups;
+	unsigned int tracked_aio_ops;
+	pthread_mutex_t track_lock;
+	pthread_cond_t *is_empty_cond;
+};
+
+struct tcmu_io_queue {
+	pthread_mutex_t io_lock;
+	pthread_cond_t io_cond;
+
+	pthread_t *io_wq_threads;
+	struct list_head io_queue;
+};
+
+struct tcmulib_device {
+	struct tcmu_device *dev;
+
+	pthread_t cmdproc_thread;
+
+	/* TCMUR_DEV flags */
+	uint32_t flags;
+	uint8_t failover_type;
+
+	pthread_t recovery_thread;
+	struct list_node recovery_entry;
+
+	uint8_t lock_state;
+	pthread_t lock_thread;
+	pthread_cond_t lock_cond;
+
+	/* General lock for lock state, thread, dev state, etc */
+	pthread_mutex_t state_lock;
+	int pending_uas;
+
+	/*
+	 * lock order:
+	 *  work_queue->aio_lock
+	 *    track_queue->track_lock
+	 */
+        struct tcmu_io_queue work_queue;
+        struct tcmu_track_aio track_queue;
+
+	pthread_spinlock_t lock; /* protects concurrent updates to mailbox */
+	pthread_mutex_t caw_lock; /* for atomic CAW operation */
+
+	uint32_t format_progress;
+	pthread_mutex_t format_lock; /* for atomic format operations */
 };
 
 /*

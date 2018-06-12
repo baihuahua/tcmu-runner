@@ -32,7 +32,7 @@ static void _cleanup_mutex_lock(void *arg)
 	pthread_mutex_unlock(arg);
 }
 
-void track_aio_request_start(struct tcmur_device *rdev)
+void track_aio_request_start(struct tcmulib_device *rdev)
 {
 	struct tcmu_track_aio *aio_track = &rdev->track_queue;
 
@@ -45,7 +45,7 @@ void track_aio_request_start(struct tcmur_device *rdev)
 	pthread_cleanup_pop(0);
 }
 
-void track_aio_request_finish(struct tcmur_device *rdev, int *wake_up)
+void track_aio_request_finish(struct tcmulib_device *rdev, int *wake_up)
 {
 	struct tcmu_track_aio *aio_track = &rdev->track_queue;
 	pthread_cond_t *cond;
@@ -71,7 +71,7 @@ void track_aio_request_finish(struct tcmur_device *rdev, int *wake_up)
 	pthread_cleanup_pop(0);
 }
 
-void track_aio_wakeup_finish(struct tcmur_device *rdev, int *wake_up)
+void track_aio_wakeup_finish(struct tcmulib_device *rdev, int *wake_up)
 {
 	struct tcmu_track_aio *aio_track = &rdev->track_queue;
 
@@ -100,7 +100,7 @@ static void cleanup_empty_queue_wait(void *arg)
 	pthread_mutex_unlock(&aio_track->track_lock);
 }
 
-int aio_wait_for_empty_queue(struct tcmur_device *rdev)
+int aio_wait_for_empty_queue(struct tcmulib_device *rdev)
 {
 	struct tcmu_track_aio *aio_track = &rdev->track_queue;
 	pthread_cond_t cond;
@@ -139,7 +139,7 @@ static void _cleanup_io_work(void *arg)
 static void *io_work_queue(void *arg)
 {
 	struct tcmu_device *dev = arg;
-	struct tcmur_device *rdev = tcmu_get_daemon_dev_private(dev);
+	struct tcmulib_device *rdev = tcmu_get_daemon_dev_private(dev);
 	struct tcmu_io_queue *io_wq = &rdev->work_queue;
 	int ret;
 
@@ -180,7 +180,7 @@ static int aio_schedule(struct tcmu_device *dev, struct tcmulib_cmd *cmd,
 			tcmu_work_fn_t fn)
 {
 	struct tcmu_work *work;
-	struct tcmur_device *rdev = tcmu_get_daemon_dev_private(dev);
+	struct tcmulib_device *rdev = tcmu_get_daemon_dev_private(dev);
 	struct tcmu_io_queue *io_wq = &rdev->work_queue;
 
 	work = malloc(sizeof(*work));
@@ -222,7 +222,7 @@ int async_handle_cmd(struct tcmu_device *dev, struct tcmulib_cmd *cmd,
 	return ret;
 }
 
-int setup_aio_tracking(struct tcmur_device *rdev)
+int setup_aio_tracking(struct tcmulib_device *rdev)
 {
 	int ret;
 	struct tcmu_track_aio *aio_track = &rdev->track_queue;
@@ -237,7 +237,7 @@ int setup_aio_tracking(struct tcmur_device *rdev)
 	return 0;
 }
 
-void cleanup_aio_tracking(struct tcmur_device *rdev)
+void cleanup_aio_tracking(struct tcmulib_device *rdev)
 {
 	int ret;
 	struct tcmu_track_aio *aio_track = &rdev->track_queue;
@@ -274,7 +274,7 @@ static void tcmu_cancel_thread(pthread_t thread)
 void cleanup_io_work_queue_threads(struct tcmu_device *dev)
 {
 	struct tcmulib_backstore_handler *r_handler = tcmu_get_runner_handler(dev);
-	struct tcmur_device *rdev = tcmu_get_daemon_dev_private(dev);
+	struct tcmulib_device *rdev = tcmu_get_daemon_dev_private(dev);
 	struct tcmu_io_queue *io_wq = &rdev->work_queue;
 	int i, nr_threads = r_handler->nr_threads;
 
@@ -292,7 +292,7 @@ void cleanup_io_work_queue_threads(struct tcmu_device *dev)
 int setup_io_work_queue(struct tcmu_device *dev)
 {
 	struct tcmulib_backstore_handler *r_handler = tcmu_get_runner_handler(dev);
-	struct tcmur_device *rdev = tcmu_get_daemon_dev_private(dev);
+	struct tcmulib_device *rdev = tcmu_get_daemon_dev_private(dev);
 	struct tcmu_io_queue *io_wq = &rdev->work_queue;
 	int ret, i, nr_threads = r_handler->nr_threads;
 
@@ -338,7 +338,7 @@ out:
 
 void cleanup_io_work_queue(struct tcmu_device *dev, bool cancel)
 {
-	struct tcmur_device *rdev = tcmu_get_daemon_dev_private(dev);
+	struct tcmulib_device *rdev = tcmu_get_daemon_dev_private(dev);
 	struct tcmu_io_queue *io_wq = &rdev->work_queue;
 	int ret;
 
